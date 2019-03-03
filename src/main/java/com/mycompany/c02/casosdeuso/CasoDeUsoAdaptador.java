@@ -6,7 +6,6 @@
 package com.mycompany.c02.casosdeuso;
 
 import com.mycompany.c01.entidades.Member;
-import com.mycompany.c02.casosdeuso.Transferencia.Peticion;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -20,20 +19,24 @@ public class CasoDeUsoAdaptador {
     AlmacenMemberI almacenMember;
     FabricaEditorI fabricaEditor;
 
-    public void promueveMembers(List<Transferencia> transferencias) {
+    public CasoDeUsoAdaptador(AlmacenMemberI almacenMember, FabricaEditorI fabricaEditor) {
+        this.almacenMember = almacenMember;
+        this.fabricaEditor = fabricaEditor;
+    }
+
+    public ModeloRespuesta promueveMembers(List<Transferencia> transferencias) {
 
         BitacoraDeEjecucion bitacoraDeEjecucion = new BitacoraDeEjecucion();
         List<Exception> lista = new ArrayList<>();
 
         transferencias.forEach((Transferencia transferencia) -> {
 
-            Peticion origen = transferencia.getOrigen();
-
+            PeticionMember origen = transferencia.getOrigen();
             Member origenMember = null;
-            
+
             try {
                 origenMember = almacenMember.buscaMemberViaID(origen);
-            } catch (Exception ex) {
+            } catch (ExcepcionDescarga ex) {
                 lista.add(ex);
             }
 
@@ -44,17 +47,18 @@ public class CasoDeUsoAdaptador {
             Member destinoMember = generaMember(transferencia.getDestino());
             destinoMember.setContenido(conAjustes);
 
-            String biblioteca = destinoMember.getBiblioteca();
-            if (!almacenMember.verificaBiblioteca(biblioteca)) {
-                almacenMember.creaBiblioteca(biblioteca);
+            if (!almacenMember.verificaBiblioteca(destinoMember)) {
+                almacenMember.creaBiblioteca(destinoMember);
             }
 
-            almacenMember.promocionaMember(destinoMember);
+            almacenMember.promocionaMember(transferencia);
 
         });
+
+        return null;
     }
 
-    private static Member generaMember(Peticion peticion) {
+    private static Member generaMember(PeticionMember peticion) {
         Member member = new Member();
         member.setBiblioteca(peticion.getBiblioteca());
         member.setNombre(peticion.getNombre());
@@ -67,6 +71,6 @@ public class CasoDeUsoAdaptador {
         String tipo = transferencia.getTipo();
         String origen = transferencia.getOrigen().getServidor();
         String destino = transferencia.getDestino().getServidor();
-        return origen + "-" + destino + "-" + tipo;
+        return origen + "_" + destino + "_" + tipo;
     }
 }

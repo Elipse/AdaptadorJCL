@@ -1,0 +1,10 @@
+[
+	{
+		"cadenaDeBusqueda": "DSN=PGA",
+		"cadenaDeReemplazo": "DSN=PGA"
+	},
+	{
+		"cadenaDeBusqueda": "INFODES",
+		"cadenaDeReemplazo": "150.23.1.12"
+	}
+]

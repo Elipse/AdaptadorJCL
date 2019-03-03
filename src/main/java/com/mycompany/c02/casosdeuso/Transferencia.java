@@ -12,8 +12,8 @@ package com.mycompany.c02.casosdeuso;
 public class Transferencia {
 
     private String tipo;
-    private Peticion origen;
-    private Peticion destino;
+    private PeticionMember origen;
+    private PeticionMember destino;
 
     public String getTipo() {
         return tipo;
@@ -23,56 +23,22 @@ public class Transferencia {
         this.tipo = tipo;
     }
 
-    public Peticion getOrigen() {
+    public PeticionMember getOrigen() {
         return origen;
     }
 
-    public void setOrigen(Peticion origen) {
+    public void setOrigen(PeticionMember origen) {
         this.origen = origen;
     }
 
-    public Peticion getDestino() {
+    public PeticionMember getDestino() {
         return destino;
     }
 
-    public void setDestino(Peticion destino) {
+    public void setDestino(PeticionMember destino) {
         this.destino = destino;
     }
 
-    public static class Peticion {
-
-        private String biblioteca;
-        private String nombre;
-        private String servidor;
-
-        public String getId() {
-            return biblioteca + "(" + nombre + ")" + "@" + servidor;
-        }
-
-        public String getBiblioteca() {
-            return biblioteca;
-        }
-
-        public void setBiblioteca(String biblioteca) {
-            this.biblioteca = biblioteca;
-        }
-
-        public String getNombre() {
-            return nombre;
-        }
-
-        public void setNombre(String nombre) {
-            this.nombre = nombre;
-        }
-
-        public String getServidor() {
-            return servidor;
-        }
-
-        public void setServidor(String servidor) {
-            this.servidor = servidor;
-        }
-
-    }
+   
 
 }

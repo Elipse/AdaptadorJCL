@@ -3,22 +3,17 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.mycompany.c01.entidades;
-
-import java.io.File;
-import java.util.Iterator;
+package com.mycompany.c02.casosdeuso;
 
 /**
  *
  * @author ELIALVA
  */
-public class Member {
+public class PeticionMember {
 
-    private String biblioteca;     //DNCQP.BTCH.PROCLIB
-    private String nombre;         //QAD2200
-    private String servidor;       //INFODES
-
-    private Iterator<String> contenido;
+    private String biblioteca;
+    private String nombre;
+    private String servidor;
 
     public String getNombreAbsoluto() {
         //DNCQP.BTCH.PROCLIB(QAD2200)
@@ -53,13 +48,4 @@ public class Member {
     public void setServidor(String servidor) {
         this.servidor = servidor;
     }
-
-    public Iterator<String> getContenido() {
-        return contenido;
-    }
-
-    public void setContenido(Iterator<String> contenido) {
-        this.contenido = contenido;
-    }
-
 }

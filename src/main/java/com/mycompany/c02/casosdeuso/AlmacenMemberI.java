@@ -6,7 +6,6 @@
 package com.mycompany.c02.casosdeuso;
 
 import com.mycompany.c01.entidades.Member;
-import com.mycompany.c02.casosdeuso.Transferencia.Peticion;
 import java.net.URL;
 
 /**
@@ -15,16 +14,16 @@ import java.net.URL;
  */
 public interface AlmacenMemberI {
     
-    Member buscaMemberViaID(Peticion peticion) throws ExcepcionDescarga;
+    Member buscaMemberViaID(PeticionMember peticion) throws ExcepcionDescarga;
     
     void guardaContenido();
     
     URL obtieneURLDeContenido(String id);
 
-    boolean verificaBiblioteca(String biblioteca);
+    boolean verificaBiblioteca(Member biblioteca);
     
-    boolean creaBiblioteca(String biblioteca);
+    void creaBiblioteca(Member biblioteca);
     
-    void promocionaMember(Member destinoMember);
+    void promocionaMember(Transferencia transferencia);
     
 }

@@ -7,6 +7,7 @@ package com.mycompany.c04.adaptador;
 
 import com.mycompany.c04.detalles.AlmacenMember;
 import com.mycompany.c01.entidades.Member;
+import com.mycompany.c02.casosdeuso.PeticionMember;
 import com.mycompany.c02.casosdeuso.Transferencia;
 import com.mycompany.main.AdaptadorConfig;
 import org.junit.After;
@@ -51,7 +52,7 @@ public class AlmacenMemberTest {
     @Test
     public void testBuscaMemberViaID() throws Exception {
         System.out.println("buscaMemberViaID");
-        Transferencia.Peticion peticion = null;
+        PeticionMember peticion = null;
         AlmacenMember instance = new AlmacenMember();
         Member expResult = null;
         Member result = instance.buscaMemberViaID(peticion);

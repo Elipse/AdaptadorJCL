@@ -5,10 +5,12 @@
  */
 package com.mycompany.c03.adaptadores;
 
+import com.mycompany.c02.casosdeuso.PresentadorAdaptadorI;
+
 /**
  *
  * @author ELIALVA
  */
-public class Presentador {
+public class PresentadorAdaptador implements PresentadorAdaptadorI {
     
 }

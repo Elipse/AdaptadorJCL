@@ -9,7 +9,7 @@ package com.mycompany.c02.casosdeuso;
  *
  * @author ELIALVA
  */
-public interface PresentadorAdaptador {
+public interface PresentadorAdaptadorI {
     //CodecastSummariesViewModel getViewModel();
 
   //void present(CodecastSummariesResponseModel responseModel);

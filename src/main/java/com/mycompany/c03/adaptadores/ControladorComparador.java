@@ -9,6 +9,6 @@ package com.mycompany.c03.adaptadores;
  *
  * @author ELIALVA
  */
-public class Controlador {
+public class ControladorComparador {
     
 }

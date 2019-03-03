@@ -11,12 +11,10 @@ import java.util.Iterator;
  *
  * @author ELIALVA
  */
-public abstract class Editor {
-    
-    
+public interface Editor {
+
     public abstract Iterator<String> reemplaza(Iterator<String> contenido);
-    
-    public abstract Iterator<String>  ajusta(Iterator<String> contenido);
-    
-    
+
+    public abstract Iterator<String> ajusta(Iterator<String> contenido);
+
 }
