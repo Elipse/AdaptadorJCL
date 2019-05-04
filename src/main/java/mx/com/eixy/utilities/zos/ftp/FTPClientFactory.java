@@ -15,8 +15,6 @@ import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.commons.net.ftp.FTP;
 
 import org.apache.commons.net.ftp.FTPClient;

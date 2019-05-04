@@ -5,6 +5,8 @@
  */
 package com.mycompany.c02.casosdeuso;
 
+import com.mycompany.c01.entidades.Member;
+
 /**
  *
  * @author ELIALVA
@@ -12,8 +14,8 @@ package com.mycompany.c02.casosdeuso;
 public class Transferencia {
 
     private String tipo;
-    private PeticionMember origen;
-    private PeticionMember destino;
+    private Member origen;
+    private Member destino;
 
     public String getTipo() {
         return tipo;
@@ -23,22 +25,37 @@ public class Transferencia {
         this.tipo = tipo;
     }
 
-    public PeticionMember getOrigen() {
+    public Member getOrigen() {
         return origen;
     }
 
-    public void setOrigen(PeticionMember origen) {
+    public void setOrigen(Member origen) {
         this.origen = origen;
     }
 
-    public PeticionMember getDestino() {
+    public Member getDestino() {
         return destino;
     }
 
-    public void setDestino(PeticionMember destino) {
+    public void setDestino(Member destino) {
         this.destino = destino;
     }
 
-   
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null || !(obj instanceof Transferencia)) {
+            return false;
+        }
+        Transferencia transferencia = (Transferencia) obj;
+        String id1 = transferencia.getOrigen().getTrayectoria() + transferencia.getDestino().getTrayectoria();
+        String id2 = this.getOrigen().getTrayectoria() + this.getDestino().getTrayectoria();
 
+        return id1.equals(id2);
+    }
+
+    @Override
+    public int hashCode() {
+        String id1 = this.getOrigen().getTrayectoria() + this.getDestino().getTrayectoria();
+        return id1.hashCode();
+    }
 }

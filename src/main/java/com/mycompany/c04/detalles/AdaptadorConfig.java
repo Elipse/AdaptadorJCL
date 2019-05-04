@@ -1,14 +1,13 @@
-package com.mycompany.main;
+package com.mycompany.c04.detalles;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.mycompany.c02.casosdeuso.AlmacenMemberI;
-import com.mycompany.c02.casosdeuso.CasoDeUsoAdaptador;
+import com.mycompany.c02.casosdeuso.AdaptaMembersCasoDeUso;
+import com.mycompany.c02.casosdeuso.ComparaMembersCasoDeUso;
 import com.mycompany.c02.casosdeuso.Editor;
-import com.mycompany.c02.casosdeuso.FabricaEditorI;
-import com.mycompany.c03.adaptadores.PresentadorAdaptador;
-import com.mycompany.c04.detalles.AlmacenMember;
-import com.mycompany.c04.detalles.FabricaDeEditores;
+import com.mycompany.c03.adaptadores.AdaptaMembersPresentador;
+import com.mycompany.c03.adaptadores.ComparaMembersPresentador;
 import com.mycompany.c04.detalles.editores.INFOPRO_INFODES_CARD;
 import com.mycompany.c04.detalles.editores.INFOPRO_INFODES_DISP;
 import com.mycompany.c04.detalles.editores.INFOPRO_INFODES_PROC;
@@ -42,6 +41,8 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.env.Environment;
+import com.mycompany.c02.casosdeuso.EditorFabrica;
+import mx.com.eixy.utilities.zos.ftp.DataSetDefinition;
 
 @Configuration
 @ComponentScan(basePackages = {"com.mycompany.c04.detalles", "com.mycompany.c04.detalles.editores"})
@@ -72,14 +73,22 @@ public class AdaptadorConfig {
     @Value("#{'${charset.default}'}")
     private String charsetDefault;
 
-    @Bean
-    public PresentadorAdaptador newPresentador() {
-        return new PresentadorAdaptador() {
-        };
-    }
-
     @Autowired
     List<FTPServer> listaDeServidoresFTP;
+
+    @Bean
+    public DataSetDefinition dataSetDefinition() {
+        DataSetDefinition dataSetDefinition = DataSetDefinition.newDataDefinition()
+                .setDsname("")
+                .setDirectorySize("di=900")
+                .setRecordFormat("rec=fb")
+                .setRecordLength("lr=080")
+                .setBlkSize("blksize=32720")
+                .setSpaceUnit("cy")
+                .setPrimarySpace("pri=10")
+                .setSecondarySpace("sec=5");
+        return dataSetDefinition;
+    }
 
     @Bean
     public FTPClientFactory ftpClientFactory() {
@@ -92,11 +101,26 @@ public class AdaptadorConfig {
     @Autowired
     AlmacenMemberI almacenMember;
     @Autowired
-    FabricaEditorI fabricaEditor;
+    EditorFabrica fabricaEditor;
 
     @Bean
-    public CasoDeUsoAdaptador newCasoDeUsoAdaptador() {
-        return new CasoDeUsoAdaptador(almacenMember, fabricaEditor);
+    public AdaptaMembersPresentador newAdaptaMembersPresentador() {
+        return new AdaptaMembersPresentador();
+    }
+
+    @Bean
+    public AdaptaMembersCasoDeUso newAdaptaMembersCasoDeUso() {
+        return new AdaptaMembersCasoDeUso(almacenMember, fabricaEditor);
+    }
+
+    @Bean
+    public ComparaMembersPresentador newComparaMembersPresentador() {
+        return new ComparaMembersPresentador();
+    }
+
+    @Bean
+    public ComparaMembersCasoDeUso newComparaMembersCasoDeUso() {
+        return new ComparaMembersCasoDeUso(almacenMember);
     }
 
     @Configuration
@@ -127,24 +151,7 @@ public class AdaptadorConfig {
         }
     }
 
-    /*
-    @Bean
-    public PDSConfig pds() {
-
-        PDSConfig pds = null;
-
-        Gson gson = new Gson();
-        try {
-            pds = gson.fromJson(new FileReader(ARCHIVO_PDS), PDSConfig.class);
-        } catch (JsonSyntaxException | JsonIOException | FileNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-        System.out.println("el pds " + pds);
-
-        return pds;
-    }*/
+   
     @Bean
     public Map<String, List<Reemplazo>> mapaDeReemplazos() {
 

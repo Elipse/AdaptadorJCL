@@ -37,6 +37,7 @@ public class MyTextListener {
 	    ChangeListener changeListener) {
 	Objects.requireNonNull(text);
 	Objects.requireNonNull(changeListener);
+        
 	DocumentListener dl = new DocumentListener() {
 	    private int lastChange = 0, lastNotifiedChange = 0;
 
@@ -61,6 +62,11 @@ public class MyTextListener {
 		});
 	    }
 	};
+        
+        Document d = text.getDocument();
+	if (d != null)
+	    d.addDocumentListener(dl);
+        
 	text.addPropertyChangeListener("document", (PropertyChangeEvent e) -> {
 	    Document d1 = (Document) e.getOldValue();
 	    Document d2 = (Document) e.getNewValue();
@@ -70,9 +76,7 @@ public class MyTextListener {
 		d2.addDocumentListener(dl);
 	    dl.changedUpdate(null);
 	});
-	Document d = text.getDocument();
-	if (d != null)
-	    d.addDocumentListener(dl);
+	
     }
 
 }

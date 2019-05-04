@@ -1,11 +1,5 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.mycompany.c01.entidades;
 
-import java.io.File;
 import java.util.Iterator;
 
 /**
@@ -17,10 +11,9 @@ public class Member {
     private String biblioteca;     //DNCQP.BTCH.PROCLIB
     private String nombre;         //QAD2200
     private String servidor;       //INFODES
-
     private Iterator<String> contenido;
-
-    public String getNombreAbsoluto() {
+    
+     public String getNombreAbsoluto() {
         //DNCQP.BTCH.PROCLIB(QAD2200)
         return biblioteca + "(" + nombre + ")";
     }
@@ -61,5 +54,4 @@ public class Member {
     public void setContenido(Iterator<String> contenido) {
         this.contenido = contenido;
     }
-
 }

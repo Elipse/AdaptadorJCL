@@ -7,26 +7,23 @@ package com.mycompany.c04.detalles;
 
 import com.mycompany.c01.entidades.Member;
 import com.mycompany.c02.casosdeuso.AlmacenMemberI;
+import com.mycompany.c02.casosdeuso.ExcepcionCarga;
 import com.mycompany.c02.casosdeuso.ExcepcionDescarga;
-import com.mycompany.c02.casosdeuso.PeticionMember;
-import com.mycompany.c02.casosdeuso.Transferencia;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import mx.com.eixy.utilities.zos.ftp.DataSetDefinition;
 import mx.com.eixy.utilities.zos.ftp.FTPClientFactory;
 import mx.com.eixy.utilities.zos.ftp.Transfer;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -38,133 +35,110 @@ import org.springframework.stereotype.Component;
 @Component
 public class AlmacenMember implements AlmacenMemberI {
 
-    @Value("#{'${directorio_temporal}' + '\\'}")
-    private String directorioTemporal;
-
+    @Value("#{'${directorio.origen}' + '\\'}")
+    private String directorioOrigen;
+    @Value("#{'${directorio.destino}' + '\\'}")
+    private String directorioDestino;
     @Autowired
     private FTPClientFactory ftpClientFactory;
+    @Autowired
+    private DataSetDefinition dataSetDefinition;
 
-    private String servidor;
-    private String biblioteca;
-    private String nombre;
-    private String memberRemoto;
-    private String memberLocal;
-    private Transfer transferencia;
-    private File file;
-    private Iterator<String> contenido;
-
-    private final Map<String, URL> contenidos;
-
-    public AlmacenMember() {
-        contenidos = new HashMap<>();
-    }
+    private final Map<String, URL> contenidos = new HashMap<>();
 
     @Override
-    public Member buscaMemberViaID(PeticionMember peticion) throws ExcepcionDescarga {
+    public Member recuperaMember(Member peticion) throws ExcepcionDescarga {
 
         try {
-            servidor = peticion.getServidor();
-            biblioteca = peticion.getBiblioteca();
-            nombre = peticion.getNombre();
-            memberRemoto = biblioteca + "(" + nombre + ")";
-            memberLocal = directorioTemporal + nombre;
+            Transfer transferencia = creaTransferencia(peticion);
 
-            transferencia = creaTransferencia();
-            file = ftpClientFactory.getDataSet(transferencia);
-            contenido = Files.readAllLines(file.toPath()).iterator();
+            File file = ftpClientFactory.getDataSet(transferencia);
+            guardaContenido(peticion, file);
 
-            guardaContenido(peticion);
+            Iterator<String> contenido = Files.readAllLines(file.toPath()).iterator();
 
-            return creaMember();
+            return creaMember(peticion, contenido);
         } catch (IOException ex) {
-            throw new ExcepcionDescarga("buscaMemberViaID", ex);
+            throw new ExcepcionDescarga(ex);
         }
     }
 
-    private void guardaContenido(PeticionMember peticion) throws MalformedURLException {
-        String id = peticion.getNombreAbsoluto(); //o getTrayectoria???
-        URL url = file.toURI().toURL();
-        contenidos.put(id, url);
-    }
-
-    private Transfer creaTransferencia() {
+    private Transfer creaTransferencia(Member peticion) {
         return Transfer.newTransferencia().
-                setServer(servidor).
-                setRemoteFile(memberRemoto).
-                setLocalFile(memberLocal);
+                setServer(peticion.getServidor()).
+                setRemoteFile(peticion.getNombreAbsoluto()).
+                setLocalFile(directorioOrigen + peticion.getNombre());
     }
 
-    private Member creaMember() {
+    private Member creaMember(Member peticion, Iterator<String> contenido) {
         Member member = new Member();
-        member.setServidor(servidor);
-        member.setBiblioteca(biblioteca);
-        member.setNombre(nombre);
+        member.setServidor(peticion.getServidor());
+        member.setBiblioteca(peticion.getBiblioteca());
+        member.setNombre(peticion.getNombre());
         member.setContenido(contenido);
-
         return member;
+    }
+
+    @Override
+    public boolean verificaBiblioteca(Member member) throws ExcepcionCarga {
+
+        String ftpServer = member.getServidor();
+        String remoteDataSet = member.getBiblioteca();
+
+        try {
+            return ftpClientFactory.isRemoteDataSetAvailable(ftpServer, remoteDataSet);
+        } catch (IOException e) {
+            throw new ExcepcionCarga(e);
+        }
+    }
+
+    @Override
+    public void creaBiblioteca(Member member) throws ExcepcionCarga {
+
+        String ftpServer = member.getServidor();
+        String remoteDataSet = member.getBiblioteca();
+
+        dataSetDefinition.setDsname(remoteDataSet);
+
+        try {
+            ftpClientFactory.createPartitionedDataSet(ftpServer, dataSetDefinition);
+        } catch (IOException e) {
+            throw new ExcepcionCarga(e);
+        }
+    }
+
+    @Override
+    public void promocionaMember(Member member) throws ExcepcionCarga {
+
+        File archivoLocal = new File(directorioDestino + member.getNombre());
+
+        List<String> contenidoDestino = new ArrayList<>();
+        member.getContenido().forEachRemaining(contenidoDestino::add);
+
+        try {
+            FileUtils.writeLines(archivoLocal, contenidoDestino);
+
+            Transfer transfer = Transfer.newTransferencia().
+                    setServer(member.getServidor()).
+                    setRemoteFile(member.getNombreAbsoluto()).
+                    setLocalFile(archivoLocal.getAbsolutePath());
+            ftpClientFactory.putMember(transfer);
+            File file = archivoLocal;
+            guardaContenido(member, file);
+
+        } catch (IOException e) {
+            throw new ExcepcionCarga(e);
+        }
+    }
+
+    private void guardaContenido(Member member, File file) throws MalformedURLException {
+        URL url = file.toURI().toURL();
+        contenidos.put(member.getTrayectoria(), url);
     }
 
     @Override
     public URL obtieneURLDeContenido(String id) {
         return contenidos.get(id);
-    }
-
-    @Override
-    public boolean verificaBiblioteca(Member biblioteca) {
-        try {
-            return ftpClientFactory.isRemoteDataSetAvailable(biblioteca.getServidor(), biblioteca.getBiblioteca());
-        } catch (IOException ex) {
-            Logger.getLogger(AlmacenMember.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return false;
-    }
-
-    @Override
-    public void creaBiblioteca(Member biblioteca) {
-
-        DataSetDefinition dataSetDefinition = DataSetDefinition.newDataDefinition()
-                .setDsname(biblioteca.getBiblioteca())
-                .setDirectorySize("di=900")
-                .setRecordFormat("rec=fb")
-                .setRecordLength("lr=080")
-                .setBlkSize("blksize=32720")
-                .setSpaceUnit("cy")
-                .setPrimarySpace("pri=10")
-                .setSecondarySpace("sec=5");
-        try {
-            ftpClientFactory.createPartitionedDataSet(biblioteca.getServidor(), dataSetDefinition);
-        } catch (IOException ex) {
-            Logger.getLogger(AlmacenMember.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    @Override
-    public void promocionaMember(Transferencia transferencia) {
-
-        URL get = contenidos.get(transferencia.getOrigen().getNombreAbsoluto());
-        Path path = Paths.get("");
-        
-        try {
-           path =  Paths.get(get.toURI()).toAbsolutePath();
-        } catch (URISyntaxException ex) {
-            Logger.getLogger(AlmacenMember.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        Transfer setLocalFile = Transfer.newTransferencia().
-                setServer(transferencia.getDestino().getServidor()).
-                setRemoteFile(transferencia.getDestino().getNombreAbsoluto()).
-                setLocalFile(path.toString());
-
-        try {
-            ftpClientFactory.putMember(setLocalFile);
-        } catch (IOException ex) {
-            Logger.getLogger(AlmacenMember.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    @Override
-    public void guardaContenido() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

@@ -6,7 +6,6 @@
 package com.mycompany.c02.casosdeuso;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -14,14 +13,19 @@ import java.util.Map;
  * @author ELIALVA
  */
 public class BitacoraDeEjecucion {
-    
-    public static Map<String,List<String>> bitacora;
-    
+
+    private static final Map<Transferencia, Exception> MAPA_DE_EXCEPCIONES;
+
     static {
-        bitacora = new HashMap<>();
+        MAPA_DE_EXCEPCIONES = new HashMap<>();
     }
-    
-    public void registra(String member, List<String> mensajes) {
-        bitacora.put(member, mensajes);
-    }        
+
+    void registraExcepcion(Transferencia transferencia, Exception e) {
+        MAPA_DE_EXCEPCIONES.put(transferencia, e);
+    }
+
+    public Map<Transferencia, Exception> obtieneExcepciones() {
+        return MAPA_DE_EXCEPCIONES;
+    }
+
 }

@@ -9,6 +9,8 @@ import com.mycompany.c02.casosdeuso.Editor;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  *
@@ -16,12 +18,15 @@ import java.util.List;
  */
 public abstract class EditorEstandar implements Editor {
 
+    @Autowired
+    protected Map<String, List<Reemplazo>> mapaDeReemplazos;
+
     @Override
     public Iterator<String> reemplaza(Iterator<String> contenido) {
 
         List<String> contenidoReemplazado = new ArrayList<>();
 
-        List<Reemplazo> reemplazos = obtieneReemplazos();
+        List<Reemplazo> reemplazos =  mapaDeReemplazos.get(this.getClass().getSimpleName());
 
         contenido.forEachRemaining(lineaDeCodigo -> {
             reemplazos.forEach(reemplazo -> {
@@ -36,8 +41,6 @@ public abstract class EditorEstandar implements Editor {
 
         return contenidoReemplazado.iterator();
     }
-
-    abstract List<Reemplazo> obtieneReemplazos();
 
     @Override
     public abstract Iterator<String> ajusta(Iterator<String> contenido);

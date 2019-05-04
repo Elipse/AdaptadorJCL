@@ -6,17 +6,17 @@
 package com.mycompany.c04.detalles;
 
 import com.mycompany.c02.casosdeuso.Editor;
-import com.mycompany.c02.casosdeuso.FabricaEditorI;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import com.mycompany.c02.casosdeuso.EditorFabrica;
 
 /**
  *
  * @author ELIALVA
  */
 @Component
-public class FabricaDeEditores implements FabricaEditorI{
+public class FabricaDeEditores implements EditorFabrica{
 
     @Autowired
     Map<String,Editor> mapaDeEditores;

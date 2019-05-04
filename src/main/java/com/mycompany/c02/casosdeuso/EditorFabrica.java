@@ -9,8 +9,8 @@ package com.mycompany.c02.casosdeuso;
  *
  * @author ELIALVA
  */
-public interface PresentadorAdaptadorI {
-    //CodecastSummariesViewModel getViewModel();
+public interface EditorFabrica {
 
-  //void present(CodecastSummariesResponseModel responseModel);
+    public Editor newEditor(String editor);
+    
 }

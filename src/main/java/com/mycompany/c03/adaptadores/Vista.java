@@ -10,5 +10,9 @@ package com.mycompany.c03.adaptadores;
  * @author ELIALVA
  */
 public interface Vista {
+
+    public void muestra(AdaptaMembersModeloVista modeloVista);
     
+    public void muestra(ComparaMembersModeloVista modeloVista);
+
 }

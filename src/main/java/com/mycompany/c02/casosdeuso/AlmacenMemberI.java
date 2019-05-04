@@ -14,16 +14,14 @@ import java.net.URL;
  */
 public interface AlmacenMemberI {
     
-    Member buscaMemberViaID(PeticionMember peticion) throws ExcepcionDescarga;
+    Member recuperaMember(Member peticion) throws ExcepcionDescarga;
     
-    void guardaContenido();
+    boolean verificaBiblioteca(Member biblioteca) throws ExcepcionCarga;
     
-    URL obtieneURLDeContenido(String id);
-
-    boolean verificaBiblioteca(Member biblioteca);
+    void creaBiblioteca(Member biblioteca) throws ExcepcionCarga;
     
-    void creaBiblioteca(Member biblioteca);
+    void promocionaMember(Member member) throws ExcepcionCarga;
     
-    void promocionaMember(Transferencia transferencia);
+    URL obtieneURLDeContenido(String id) throws ExcepcionComparacion;
     
 }

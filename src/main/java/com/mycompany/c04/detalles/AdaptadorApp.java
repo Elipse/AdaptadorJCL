@@ -3,9 +3,8 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.mycompany.main;
+package com.mycompany.c04.detalles;
 
-import com.mycompany.c04.detalles.AdaptadorIUGrafica;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 /**
@@ -17,7 +16,7 @@ public class AdaptadorApp {
     public static void main(String[] args) throws Exception {
 
         new AnnotationConfigApplicationContext(AdaptadorConfig.class).
-                getBean(AdaptadorIUGrafica.class).inicia();
+                getBean(AdaptadorIUGraficaTest.class).inicia();
     }
 
 }

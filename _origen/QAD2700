@@ -1,0 +1,257 @@
+//QAD2700 PROC
+//**********************************************************************
+//*                >>>>>    QAD2700     <<<<<
+//*  APLICACION  : CUENTA CORRIENTE (RECEPCION DE INFORMACION)
+//*  PROCESO     : EVENTUAL
+//*  OBJETIVO    : CATALOGA ARCHIVOS PARA RECEPCION DE BONOS VIDA Y
+//*                DANOS, PRIMERO SE BORRAN
+//*  COMENTARIOS : EJECUTARSE EN LA MANANA, ANTES DE LA OPERACION
+//*                EN LINEA
+//*  CORRE
+//*  DESPUES DE  : PGAQAD22
+//*  ANTES DE    : LA RECEPCION DE LAS INTERFASES DE BONOS
+//*  ELABORADO   : RAFAEL PINEDA FLORES (SOFTTEK) FECHA: 29/AGO/1999
+//*********************************************************************
+//*   MODIFICACION: MIGRACION DE CUENTA CORRIENTE A Z12.              *
+//* GNPSR00101371 SE CAMBIA EL PREFIJO PGA POR PPCQS.                 *
+//*               JUNIO 2017.                                         *
+//*********************************************************************
+//*  PASO     : QAD2705
+//*  OBJETIVO : CREA LA PRIMERA GENERACION VACIA DE LOS GDG EN
+//*             DISCO DE CUENTA CORRIENTE.
+//*  REINICIO : PASO REINICIABLE
+//*********************************************************************
+//QAD2705  EXEC PGM=TCCNULL,COND=(0,NE)
+//*            GDG DE INCONSISTENCIAS BONOS VIDA.
+//FILE1    DD  DSN=PGA.EACQ2502(+1),
+//             DISP=(NEW,CATLG,DELETE),
+//             UNIT=TEMPROD,
+//             SPACE=(CYL,(1,10),RLSE),
+//             DCB=(GDG.MODELO,
+//             RECFM=FB,LRECL=134,BLKSIZE=23450,DSORG=PS)
+//*            GDG DE INCONSISTENCIAS BONOS DA,OS.
+//FILE2    DD  DSN=PGA.EACQ3002(+1),
+//             DISP=(NEW,CATLG,DELETE),
+//             UNIT=TEMPROD,
+//             SPACE=(CYL,(1,10),RLSE),
+//             DCB=(GDG.MODELO,
+//             RECFM=FB,LRECL=134,BLKSIZE=23450,DSORG=PS)
+//*            GDG DE COMIS. DIR. VIDA M.N. Y DLLS.
+//FILE3    DD  DSN=PGA.EACQ3502(+1),
+//             DISP=(NEW,CATLG,DELETE),
+//             UNIT=TEMPROD,
+//             SPACE=(CYL,(1,10),RLSE),
+//             DCB=(GDG.MODELO,
+//             RECFM=FB,LRECL=164,BLKSIZE=23452,DSORG=PS)
+//*            GDG DE COMIS. DIR. DA,OS.
+//FILE4    DD  DSN=PGA.EACQ4102(+1),
+//             DISP=(NEW,CATLG,DELETE),
+//             UNIT=TEMPROD,
+//             SPACE=(CYL,(1,10),RLSE),
+//             DCB=(GDG.MODELO,
+//             RECFM=FB,LRECL=307,BLKSIZE=23332,DSORG=PS)
+//*            GDG DE FALTANTES Y SOBRANTES
+//FILE5    DD  DSN=PGA.EACQ4602(+1),
+//             DISP=(NEW,CATLG,DELETE),
+//             UNIT=TEMPROD,
+//             SPACE=(CYL,(1,10),RLSE),
+//             DCB=(GDG.MODELO,
+//             RECFM=FB,LRECL=168,BLKSIZE=23352,DSORG=PS)
+//*            GDG DE INCONSISTENCIAS BONOS DA,OS MI.
+//FILE6    DD  DSN=PGA.EACQRD01(+1),
+//             DISP=(NEW,CATLG,DELETE),
+//             UNIT=TEMPROD,
+//             SPACE=(CYL,(1,10),RLSE),
+//             DCB=(GDG.MODELO,
+//             RECFM=FB,LRECL=134,BLKSIZE=23450,DSORG=PS)
+//*            GDG DE INCONSISTENCIA COMIS. DA,OS MI.
+//FILE7    DD  DSN=PGA.EACQRK01(+1),
+//             DISP=(NEW,CATLG,DELETE),
+//             UNIT=TEMPROD,
+//             SPACE=(CYL,(1,10),RLSE),
+//             DCB=(GDG.MODELO,
+//             RECFM=FB,LRECL=307,BLKSIZE=23332,DSORG=PS)
+//*********************************************************************
+//*  PASO     : QAD2704                                               *
+//*  OBJETIVO : BORRA TODAS LAS GENERACIONES DE LOS GDG EN DISCO      *
+//*             DE CUENTA CORRIENTE.                                  *
+//*  REINICIO : PASO REINICIABLE                                      *
+//*********************************************************************
+//QAD2704  EXEC PGM=IEFBR14                                             00279600
+//*           GDG DE INCONSISTENCIAS BONOS VIDA.                        06870000
+//S001     DD DSN=PGA.EACQ2502,
+//            DISP=(MOD,DELETE,DELETE),
+//            UNIT=SYSALLDA,
+//            SPACE=(TRK,(1,1),RLSE)
+//*           GDG DE INCONSISTENCIAS BONOS DA,OS.                       06870000
+//S002     DD DSN=PGA.EACQ3002,
+//            DISP=(MOD,DELETE,DELETE),
+//            UNIT=SYSALLDA,
+//            SPACE=(TRK,(1,1),RLSE)
+//*           GDG DE COMIS. DIR. VIDA M.N. Y DLLS.                      06870000
+//S003     DD DSN=PGA.EACQ3502,
+//            DISP=(MOD,DELETE,DELETE),
+//            UNIT=SYSALLDA,
+//            SPACE=(TRK,(1,1),RLSE)
+//*           GDG DE COMIS. DIR. DA,OS.                                 06870000
+//S004     DD DSN=PGA.EACQ4102,
+//            DISP=(MOD,DELETE,DELETE),
+//            UNIT=SYSALLDA,
+//            SPACE=(TRK,(1,1),RLSE)
+//*           GDG DE FALTANTES Y SOBRANTES                              06870000
+//S005     DD DSN=PGA.EACQ4602,
+//            DISP=(MOD,DELETE,DELETE),
+//            UNIT=SYSALLDA,
+//            SPACE=(TRK,(1,1),RLSE)
+//*           GDG DE INCONSISTENCIAS BONOS DA,OS MI                     06870000
+//S006     DD DSN=PGA.EACQRD01,
+//            DISP=(MOD,DELETE,DELETE),
+//            UNIT=SYSALLDA,
+//            SPACE=(TRK,(1,1),RLSE)
+//*           GDG DE INCONSISTENCIAS COMISIONES  MI                     06870000
+//S007     DD DSN=PGA.EACQRK01,
+//            DISP=(MOD,DELETE,DELETE),
+//            UNIT=SYSALLDA,
+//            SPACE=(TRK,(1,1),RLSE)
+//*********************************************************************
+//*  PASO     : QAD2703
+//*  OBJETIVO : CREA LA PRIMERA GENERACION VACIA DE LOS GDG EN
+//*             DISCO DE CUENTA CORRIENTE.
+//*  REINICIO : PASO REINICIABLE
+//*********************************************************************
+//QAD2703  EXEC PGM=TCCNULL,COND=(0,NE)
+//*            GDG DE INCONSISTENCIAS BONOS VIDA.
+//FILE1    DD  DSN=PGA.EACQ2502(+1),
+//             DISP=(NEW,CATLG,DELETE),
+//             UNIT=SHAREDA,
+//             SPACE=(CYL,(1,10),RLSE),
+//             DCB=(GDG.MODELO,
+//             RECFM=FB,LRECL=134,BLKSIZE=23450,DSORG=PS)
+//*            GDG DE INCONSISTENCIAS BONOS DA,OS.
+//FILE2    DD  DSN=PGA.EACQ3002(+1),
+//             DISP=(NEW,CATLG,DELETE),
+//             UNIT=SHAREDA,
+//             SPACE=(CYL,(1,10),RLSE),
+//             DCB=(GDG.MODELO,
+//             RECFM=FB,LRECL=134,BLKSIZE=23450,DSORG=PS)
+//*            GDG DE COMIS. DIR. VIDA M.N. Y DLLS.
+//FILE3    DD  DSN=PGA.EACQ3502(+1),
+//             DISP=(NEW,CATLG,DELETE),
+//             UNIT=SHAREDA,
+//             SPACE=(CYL,(1,10),RLSE),
+//             DCB=(GDG.MODELO,
+//             RECFM=FB,LRECL=164,BLKSIZE=23452,DSORG=PS)
+//*            GDG DE COMIS. DIR. DA,OS.
+//FILE4    DD  DSN=PGA.EACQ4102(+1),
+//             DISP=(NEW,CATLG,DELETE),
+//             UNIT=SHAREDA,
+//             SPACE=(CYL,(1,10),RLSE),
+//             DCB=(GDG.MODELO,
+//             RECFM=FB,LRECL=307,BLKSIZE=23332,DSORG=PS)
+//*            GDG DE FALTANTES Y SOBRANTES
+//FILE5    DD  DSN=PGA.EACQ4602(+1),
+//             DISP=(NEW,CATLG,DELETE),
+//             UNIT=SHAREDA,
+//             SPACE=(CYL,(1,10),RLSE),
+//             DCB=(GDG.MODELO,
+//             RECFM=FB,LRECL=168,BLKSIZE=23352,DSORG=PS)
+//*            GDG DE INCONSISTENCIAS BONOS DA,OS MI.
+//FILE6    DD  DSN=PGA.EACQRD01(+1),
+//             DISP=(NEW,CATLG,DELETE),
+//             UNIT=SHAREDA,
+//             SPACE=(CYL,(1,10),RLSE),
+//             DCB=(GDG.MODELO,
+//             RECFM=FB,LRECL=134,BLKSIZE=23450,DSORG=PS)
+//*            GDG DE INCONSISTENCIA COMIS. DA,OS MI.
+//FILE7    DD  DSN=PGA.EACQRK01(+1),
+//             DISP=(NEW,CATLG,DELETE),
+//             UNIT=SHAREDA,
+//             SPACE=(CYL,(1,10),RLSE),
+//             DCB=(GDG.MODELO,
+//             RECFM=FB,LRECL=307,BLKSIZE=23332,DSORG=PS)
+//**********************************************************************
+//*  PASO     : QAD2702
+//*  OBJETIVO : SE BORRAN LOS ARCHIVOS QUE SE UTILIZAN EN EL PROCESO
+//*  REINICIO : PASO REINICIABLE
+//*********************************************************************
+//QAD2702 EXEC PGM=IDCAMS,COND=(0,LT)
+//SYSPRINT  DD SYSOUT=*
+//SYSOUT    DD SYSOUT=*
+//SYSIN     DD DSN=PNCQP.BTCH.CARDS(QAD2701),DISP=SHR
+//*********************************************************************
+//*  PASO     : QAD2701
+//*  OBJETIVO : CATALOGAR ARCHIVOS QUE SE UTILIZAN EN LOS PROCESOS
+//*             QAD5500 Y QAD5700
+//*  REINICIO : PASO REINICIABLE
+//*********************************************************************
+//QAD2701 EXEC PGM=IEFBR14,COND=(0,LT)
+//GQA2S01I DD DSN=PGA.EAFV1501,
+//            DISP=(NEW,CATLG,DELETE),
+//            UNIT=SHAREDA,
+//            SPACE=(CYL,(1,10),RLSE),
+//            DCB=(DSORG=PS,RECFM=FB,LRECL=180,BLKSIZE=23400)
+//GQA2S02I DD DSN=PGA.EAFVBB01,
+//            DISP=(NEW,CATLG,DELETE),
+//            UNIT=SHAREDA,
+//            SPACE=(CYL,(1,10),RLSE),
+//            DCB=(DSORG=PS,RECFM=FB,LRECL=180,BLKSIZE=23400)
+//*GNPSR00101371-I
+//*QA2S03I DD DSN=PPCQS.NFD1200.EAFV4801,
+//GQA2S03I DD DSN=PGA.QAM6800.EAFV4801,
+//            DISP=(NEW,CATLG,DELETE),
+//            UNIT=SHAREDA,
+//            SPACE=(CYL,(1,10),RLSE),
+//            DCB=(DSORG=PS,RECFM=FB,LRECL=180,BLKSIZE=23400)
+//GQA2S04I DD DSN=PGA.EACQ0401,
+//            DISP=(NEW,CATLG,DELETE),
+//            UNIT=SHAREDA,
+//            SPACE=(CYL,(1,10),RLSE),
+//            DCB=(DSORG=PS,RECFM=FB,LRECL=180,BLKSIZE=23400)
+//GQA3101I DD DSN=PGA.EAFV0701,
+//            DISP=(NEW,CATLG,DELETE),
+//            UNIT=SHAREDA,
+//            SPACE=(CYL,(1,10),RLSE),
+//            DCB=(DSORG=PS,RECFM=FB,LRECL=171,BLKSIZE=23427)
+//GQA3102I DD DSN=PGA.EAFV1101,
+//            DISP=(NEW,CATLG,DELETE),
+//            UNIT=SHAREDA,
+//            SPACE=(CYL,(1,10),RLSE),
+//            DCB=(DSORG=PS,RECFM=FB,LRECL=180,BLKSIZE=23400)
+//GQA3103I DD DSN=PGA.EAFV4701,
+//            DISP=(NEW,CATLG,DELETE),
+//            UNIT=SHAREDA,
+//            SPACE=(CYL,(1,10),RLSE),
+//            DCB=(DSORG=PS,RECFM=FB,LRECL=180,BLKSIZE=23400)
+//GQA3104I DD DSN=PGA.EACQ0801,
+//            DISP=(NEW,CATLG,DELETE),
+//            UNIT=SHAREDA,
+//            SPACE=(CYL,(1,10),RLSE),
+//            DCB=(DSORG=PS,RECFM=FB,LRECL=180,BLKSIZE=23400)
+//GQA4601I DD DSN=PFT.EACQZN01,
+//            DISP=(NEW,CATLG,DELETE),
+//            UNIT=FTPPRD,
+//            SPACE=(CYL,(1,10),RLSE),
+//            DCB=(DSORG=PS,RECFM=FB,LRECL=140,BLKSIZE=23380)
+//GQA5001I DD DSN=PGA.EAFV008,
+//            DISP=(NEW,CATLG,DELETE),
+//            UNIT=SHAREDA,
+//            SPACE=(CYL,(1,10),RLSE),
+//            DCB=(DSORG=PS,RECFM=FB,LRECL=171,BLKSIZE=23427)
+//GQA5002I DD DSN=PGA.EAFV8X01,
+//            DISP=(NEW,CATLG,DELETE),
+//            UNIT=SHAREDA,
+//            SPACE=(CYL,(1,10),RLSE),
+//            DCB=(DSORG=PS,RECFM=FB,LRECL=171,BLKSIZE=23427)
+//GQA5003I DD DSN=PFT.EACQQ201,
+//            DISP=(NEW,CATLG,DELETE),
+//            UNIT=FTPPRD,
+//            SPACE=(CYL,(1,10),RLSE),
+//            DCB=(DSORG=PS,RECFM=FB,LRECL=304,BLKSIZE=23408)
+//GQA5004I DD DSN=PFT.EAFV024,
+//            DISP=(NEW,CATLG,DELETE),
+//            UNIT=FTPPRD,
+//            SPACE=(CYL,(1,10),RLSE),
+//            DCB=(DSORG=PS,RECFM=FB,LRECL=171,BLKSIZE=23427)
+//*********************************************************************
+//*            FIN DEL PROCESO QAD2700
+//*********************************************************************
