@@ -8,25 +8,16 @@ import com.mycompany.c02.casosdeuso.ComparaMembersCasoDeUso;
 import com.mycompany.c02.casosdeuso.Editor;
 import com.mycompany.c03.adaptadores.AdaptaMembersPresentador;
 import com.mycompany.c03.adaptadores.ComparaMembersPresentador;
-import com.mycompany.c04.detalles.editores.INFOPRO_INFODES_CARD;
-import com.mycompany.c04.detalles.editores.INFOPRO_INFODES_DISP;
-import com.mycompany.c04.detalles.editores.INFOPRO_INFODES_PROC;
-import com.mycompany.c04.detalles.editores.Reemplazo;
+import com.mycompany.c04.detalles.editor.Reemplazo;
 import java.io.File;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Stream;
 import mx.com.eixy.utilities.zos.ftp.FTPClientFactory;
 import mx.com.eixy.utilities.zos.ftp.FTPServer;
 import org.apache.commons.io.FileUtils;
@@ -42,25 +33,31 @@ import org.springframework.context.annotation.PropertySources;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.env.Environment;
 import com.mycompany.c02.casosdeuso.EditorFabrica;
+import com.mycompany.c03.adaptadores.AdaptaMembersControlador;
+import com.mycompany.c04.detalles.editor.EditorEstandar;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Properties;
+import java.util.Set;
 import mx.com.eixy.utilities.zos.ftp.DataSetDefinition;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanWrapperImpl;
 
 @Configuration
 @ComponentScan(basePackages = {"com.mycompany.c04.detalles", "com.mycompany.c04.detalles.editores"})
 @PropertySources({
     /*@PropertySource("file:${user.dir}/app.properties")})  */
-    @PropertySource("file:${user.dir}/app.properties")})
+    /*@PropertySource("file:${user.dir}/app.properties")})*/
+    @PropertySource("classpath:app.properties")})
 
 public class AdaptadorConfig {
 
     @Autowired
     private Environment environment;
 
-    private static final String FOLDER = System.getProperty("user.dir");
-
-    public static final String ARCHIVO_PDS = FOLDER + "/_jsons/pds.json";
-    public static final String ARCHIVO_TIPOS_FTP = FOLDER + "/_jsons/tipos.json";
-    public static final String ARCHIVO_ICON_PROCESO = FOLDER + "/_icons/process_on_32.png";
-    public static final String FOLDER_TMP = FOLDER + "/_temp/";
+    private static final URL TARGET_FOLDER = AdaptadorConfig.class.getClassLoader().getResource(".");
 
     // This method to resolve ${} in @Value
     @Bean
@@ -68,8 +65,10 @@ public class AdaptadorConfig {
         return new PropertySourcesPlaceholderConfigurer();
     }
 
-    @Value("#{'${directorio.reemplazos}' + '\\'}")
-    private String directorioDeReemplazos;
+    @Value("#{'${directorio.origen}' + '\\'}")
+    private String directorioOrigen;
+    @Value("#{'${directorio.destino}' + '\\'}")
+    private String directorioDestino;
     @Value("#{'${charset.default}'}")
     private String charsetDefault;
 
@@ -78,16 +77,48 @@ public class AdaptadorConfig {
 
     @Bean
     public DataSetDefinition dataSetDefinition() {
-        DataSetDefinition dataSetDefinition = DataSetDefinition.newDataDefinition()
-                .setDsname("")
-                .setDirectorySize("di=900")
-                .setRecordFormat("rec=fb")
-                .setRecordLength("lr=080")
-                .setBlkSize("blksize=32720")
-                .setSpaceUnit("cy")
-                .setPrimarySpace("pri=10")
-                .setSecondarySpace("sec=5");
+        String propertiesFile = environment.getProperty("biblioteca.properties.file");
+        DataSetDefinition dataSetDefinition = createBeanFromPropertiesFile(propertiesFile, DataSetDefinition.class);
         return dataSetDefinition;
+    }
+
+    private static <T extends Object> T createBeanFromPropertiesFile(String propertiesFile, Class<T> claz) {
+        try {
+            InputStream inputStream = AdaptadorConfig.class.getClassLoader().getResourceAsStream(propertiesFile);
+            Thread.currentThread().getContextClassLoader().getResourceAsStream(propertiesFile);
+            Properties properties = new Properties();
+            properties.load(inputStream);
+
+            T bean = claz.newInstance();
+
+            BeanWrapper wrapper = new BeanWrapperImpl(bean);
+            properties.entrySet().forEach((entry) -> {
+                String propertyName = entry.getKey().toString();
+                if (wrapper.isWritableProperty(propertyName)) {
+                    wrapper.setPropertyValue(propertyName, entry.getValue());
+                }
+            });
+
+            return bean;
+        } catch (IOException | InstantiationException | IllegalAccessException ex) {
+            Logger.getLogger(AdaptadorConfig.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return null;
+    }
+
+    @Bean
+    public String directorioOrigen() {
+        String tmp = TARGET_FOLDER + environment.getProperty("directorio.origen") + "/";
+        System.out.println("tmp1 = " + tmp);
+        return tmp.replaceAll("file:", "");
+    }
+
+    @Bean
+    public String directorioDestino() {
+        String tmp = TARGET_FOLDER + environment.getProperty("directorio.destino") + "/";
+        System.out.println("tmp2 = " + tmp);
+        return tmp.replaceAll("file:", "");
     }
 
     @Bean
@@ -113,6 +144,16 @@ public class AdaptadorConfig {
         return new AdaptaMembersCasoDeUso(almacenMember, fabricaEditor);
     }
 
+    @Autowired
+    AdaptaMembersPresentador adaptaMembersPresentador;
+    @Autowired
+    AdaptaMembersCasoDeUso adaptaMembersCasoDeUso;
+
+    @Bean
+    public AdaptaMembersControlador newAdaptaMembersControlador() {
+        return new AdaptaMembersControlador(adaptaMembersCasoDeUso, adaptaMembersPresentador);
+    }
+
     @Bean
     public ComparaMembersPresentador newComparaMembersPresentador() {
         return new ComparaMembersPresentador();
@@ -132,18 +173,21 @@ public class AdaptadorConfig {
         @Bean
         public List<FTPServer> listaDeServidoresFTP() {
 
-            Gson gson = new Gson();
+            String path = TARGET_FOLDER + environmentKid.getProperty("servidores.ftp");
 
+            Gson gson = new Gson();
             TypeToken<List<FTPServer>> token = new TypeToken<List<FTPServer>>() {
             };
 
-            String archivoServidoresFTP = environmentKid.getProperty("servidores.ftp");
-
             List<FTPServer> lista;
             try {
-                lista = gson.fromJson(new FileReader(archivoServidoresFTP), token.getType());
+                URL urlServidores = new URL(path);
+                InputStreamReader inputStreamReader = new InputStreamReader(urlServidores.openStream());
+                lista = gson.fromJson(inputStreamReader, token.getType());
                 return lista;
-            } catch (FileNotFoundException ex) {
+            } catch (MalformedURLException ex) {
+                Logger.getLogger(AdaptadorConfig.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
                 Logger.getLogger(AdaptadorConfig.class.getName()).log(Level.SEVERE, null, ex);
             }
 
@@ -151,35 +195,33 @@ public class AdaptadorConfig {
         }
     }
 
-   
     @Bean
     public Map<String, List<Reemplazo>> mapaDeReemplazos() {
 
-        Map<String, List<Reemplazo>> reemplazos = new HashMap<>();
+        try {
+            //reemplazos.put(StringUtils.substringBefore(fileName, "."), deJsonAReemplazos(json));
+            Map<String, List<Reemplazo>> reemplazos = new HashMap<>();
 
-        try (Stream<Path> list = Files.list(Paths.get(directorioDeReemplazos))) {
-            list.forEach(path -> {
+            String combinacionesFile = environment.getProperty("combinaciones.properties.file");
+            InputStream inputStream = AdaptadorConfig.class.getClassLoader().getResourceAsStream(combinacionesFile);
+            Thread.currentThread().getContextClassLoader().getResourceAsStream(combinacionesFile);
+            Properties combinacionesProp = new Properties();
+            combinacionesProp.load(inputStream);
+            Set<Map.Entry<Object, Object>> elements = combinacionesProp.entrySet();
 
-                String json = null;
-
-                File file = path.toFile();
-                String fileName = path.getFileName().toString();
-
-                System.out.println("cargando las reglas de " + fileName);
-
-                try {
-                    json = FileUtils.readFileToString(path.toFile(), charsetDefault);
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-
-                reemplazos.put(StringUtils.substringBefore(fileName, "."), deJsonAReemplazos(json));
-            });
+            for (Map.Entry entry : elements) {
+                String combinacion = (String) entry.getKey();
+                String values = (String) entry.getValue();
+                String archivoDeReemplazo = StringUtils.substringBefore(values, ",");
+                archivoDeReemplazo = TARGET_FOLDER.getFile() + archivoDeReemplazo;
+                String json = FileUtils.readFileToString(new File(archivoDeReemplazo), charsetDefault.trim());
+                reemplazos.put(combinacion, deJsonAReemplazos(json));
+            }
+            return reemplazos;
         } catch (IOException ex) {
             Logger.getLogger(AdaptadorConfig.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return reemplazos;
+        return null;
     }
 
     private List<Reemplazo> deJsonAReemplazos(String json) {
@@ -191,23 +233,34 @@ public class AdaptadorConfig {
         return gson.fromJson(json, token.getType());
     }
 
-    @Autowired
-    INFOPRO_INFODES_CARD infopro_infodes_card;
-    @Autowired
-    INFOPRO_INFODES_PROC infopro_infodes_proc;
-    @Autowired
-    INFOPRO_INFODES_DISP infopro_infodes_disp;
-
     @Bean
-    public Map<String, Editor> mapaDeEditores() {
+    public Map<String, Editor> mapaDeEditores() throws ClassNotFoundException {
 
-        Map<String, Editor> mapaDeEditores = new HashMap<>();
+        try {
+            Map<String, Editor> mapaDeEditores = new HashMap<>();
 
-        mapaDeEditores.put(infopro_infodes_card.getClass().getSimpleName(), infopro_infodes_card);
-        mapaDeEditores.put(infopro_infodes_proc.getClass().getSimpleName(), infopro_infodes_proc);
-        mapaDeEditores.put(infopro_infodes_disp.getClass().getSimpleName(), infopro_infodes_disp);
+            String combinacionesFile = environment.getProperty("combinaciones.properties.file");
+            InputStream inputStream = AdaptadorConfig.class.getClassLoader().getResourceAsStream(combinacionesFile);
+            Thread.currentThread().getContextClassLoader().getResourceAsStream(combinacionesFile);
+            Properties combinacionesProp = new Properties();
+            combinacionesProp.load(inputStream);
+            Set<Map.Entry<Object, Object>> elements = combinacionesProp.entrySet();
 
-        return mapaDeEditores;
+            for (Map.Entry entry : elements) {
+                String combinacion = (String) entry.getKey();
+                String values = (String) entry.getValue();
+                String editorClassName = StringUtils.substringAfter(values, ",");
+                Class<EditorEstandar> editorClass = (Class<EditorEstandar>) Class.forName(editorClassName);
+                EditorEstandar editor = editorClass.newInstance();
+                mapaDeEditores.put(combinacion, editor);
+            }
+
+            return mapaDeEditores;
+        } catch (InstantiationException | IllegalAccessException | IOException ex) {
+            Logger.getLogger(AdaptadorConfig.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return null;
     }
 
 }

@@ -25,7 +25,6 @@ import mx.com.eixy.utilities.zos.ftp.FTPClientFactory;
 import mx.com.eixy.utilities.zos.ftp.Transfer;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
@@ -35,10 +34,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class AlmacenMember implements AlmacenMemberI {
 
-    @Value("#{'${directorio.origen}' + '\\'}")
+    @Autowired
     private String directorioOrigen;
-    @Value("#{'${directorio.destino}' + '\\'}")
-    private String directorioDestino;
+    @Autowired
+    private String directorioDestino;  
     @Autowired
     private FTPClientFactory ftpClientFactory;
     @Autowired
@@ -48,7 +47,8 @@ public class AlmacenMember implements AlmacenMemberI {
 
     @Override
     public Member recuperaMember(Member peticion) throws ExcepcionDescarga {
-
+        System.out.println("directorioOrigen " + directorioOrigen);
+        System.out.println("directorioDestino " + directorioDestino);
         try {
             Transfer transferencia = creaTransferencia(peticion);
 

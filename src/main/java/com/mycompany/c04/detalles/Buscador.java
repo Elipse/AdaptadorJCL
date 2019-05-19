@@ -36,7 +36,7 @@ public class Buscador implements BuscadorDeSugerenciasI {
         try {
             InputStream resourceAsStream = Buscador.class
                     .getClassLoader()
-                    .getResourceAsStream("autocompleta/ambientes.properties");
+                    .getResourceAsStream("autocompleta.properties");
             PROPERTIES.load(resourceAsStream);
             ambientes = PROPERTIES.getProperty("ambientes").split("\\s*,\\s*");
             tipos = PROPERTIES.getProperty("tipos").split("\\s*,\\s*");

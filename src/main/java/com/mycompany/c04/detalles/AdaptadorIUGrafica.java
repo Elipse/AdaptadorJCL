@@ -5,17 +5,40 @@
  */
 package com.mycompany.c04.detalles;
 
+import com.mycompany.c01.entidades.Member;
+import com.mycompany.c02.casosdeuso.Transferencia;
+import com.mycompany.c03.adaptadores.AdaptaMembersControlador;
+import com.mycompany.c03.adaptadores.AdaptaMembersModeloVista;
+import com.mycompany.c03.adaptadores.ComparaMembersModeloVista;
+import com.mycompany.c03.adaptadores.Vista;
+import java.awt.Color;
+import java.awt.KeyboardFocusManager;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import mx.com.bitbyeteclub.c01.Sugerencia;
+import java.util.Map;
+import javax.swing.JComponent;
+import javax.swing.ListSelectionModel;
+import javax.swing.border.LineBorder;
 import mx.com.bitbyeteclub.c04.vista.AutoCompleta;
+import mx.com.eixy.util.MyList;
+import mx.com.eixy.utilities.swing.MyJTable;
+import mx.com.eixy.utilities.swing.SwingKeys;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  *
  * @author ELIALVA
  */
-public class AdaptadorIUGrafica extends javax.swing.JFrame {
+@Component
+public class AdaptadorIUGrafica extends javax.swing.JFrame implements Vista {
+
+    private MyJTable tabla;
 
     /**
      * Creates new form AdaptadorApp
@@ -68,11 +91,11 @@ public class AdaptadorIUGrafica extends javax.swing.JFrame {
         jPanel10 = new javax.swing.JPanel();
         jLabel8 = new javax.swing.JLabel();
         jScrollPane4 = new javax.swing.JScrollPane();
-        jTextArea2 = new javax.swing.JTextArea();
+        jTAMembersOrigen = new javax.swing.JTextArea();
         jPanel9 = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
         jScrollPane3 = new javax.swing.JScrollPane();
-        jTextArea3 = new javax.swing.JTextArea();
+        jTAMembersDestino = new javax.swing.JTextArea();
         jPanel4 = new javax.swing.JPanel();
         jSplitPane1 = new javax.swing.JSplitPane();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -114,8 +137,6 @@ public class AdaptadorIUGrafica extends javax.swing.JFrame {
         jLabel1.setMinimumSize(new java.awt.Dimension(105, 14));
 
         jLabel2.setText("AMBIENTE ORIGEN:");
-
-        jTFBibliotecaOrigen.setText("PNCQP.BTCH.PROCLIB PNCQP.BTCH.PROCLIB PNCQP.BTCH.PROCLIB ");
 
         jLabel6.setText("BIBLIOTECA ORIGEN:");
 
@@ -163,8 +184,6 @@ public class AdaptadorIUGrafica extends javax.swing.JFrame {
 
         jLabel5.setText("AMBIENTE DESTINO:");
 
-        jTFBibliotecaDestino.setText("PNCQP.BTCH.PROCLIB PNCQP.BTCH.PROCLIB PNCQP.BTCH.PROCLIB ");
-
         jLabel7.setText("BIBLIOTECA DESTINO:");
 
         javax.swing.GroupLayout jPanel12Layout = new javax.swing.GroupLayout(jPanel12);
@@ -206,9 +225,9 @@ public class AdaptadorIUGrafica extends javax.swing.JFrame {
 
         jLabel8.setText("MEMBERS:");
 
-        jTextArea2.setColumns(20);
-        jTextArea2.setRows(5);
-        jScrollPane4.setViewportView(jTextArea2);
+        jTAMembersOrigen.setColumns(20);
+        jTAMembersOrigen.setRows(5);
+        jScrollPane4.setViewportView(jTAMembersOrigen);
 
         javax.swing.GroupLayout jPanel10Layout = new javax.swing.GroupLayout(jPanel10);
         jPanel10.setLayout(jPanel10Layout);
@@ -237,9 +256,9 @@ public class AdaptadorIUGrafica extends javax.swing.JFrame {
 
         jLabel3.setText("MEMBERS:");
 
-        jTextArea3.setColumns(20);
-        jTextArea3.setRows(5);
-        jScrollPane3.setViewportView(jTextArea3);
+        jTAMembersDestino.setColumns(20);
+        jTAMembersDestino.setRows(5);
+        jScrollPane3.setViewportView(jTAMembersDestino);
 
         javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
         jPanel9.setLayout(jPanel9Layout);
@@ -270,7 +289,13 @@ public class AdaptadorIUGrafica extends javax.swing.JFrame {
 
         jPanel4.setLayout(new java.awt.BorderLayout());
 
+        jSplitPane1.setDividerLocation(150);
         jSplitPane1.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+        jSplitPane1.setMinimumSize(new java.awt.Dimension(200, 200));
+        jSplitPane1.setPreferredSize(new java.awt.Dimension(200, 200));
+
+        jScrollPane1.setMinimumSize(new java.awt.Dimension(150, 400));
+        jScrollPane1.setPreferredSize(new java.awt.Dimension(150, 400));
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -283,15 +308,21 @@ public class AdaptadorIUGrafica extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
+        jTable1.setPreferredSize(new java.awt.Dimension(150, 200));
         jScrollPane1.setViewportView(jTable1);
 
-        jSplitPane1.setLeftComponent(jScrollPane1);
+        jSplitPane1.setTopComponent(jScrollPane1);
 
+        jScrollPane2.setPreferredSize(new java.awt.Dimension(150, 200));
+
+        jTextArea1.setEditable(false);
         jTextArea1.setColumns(20);
         jTextArea1.setRows(5);
+        jTextArea1.setText("a\nb\nc");
+        jTextArea1.setPreferredSize(new java.awt.Dimension(100, 100));
         jScrollPane2.setViewportView(jTextArea1);
 
-        jSplitPane1.setRightComponent(jScrollPane2);
+        jSplitPane1.setBottomComponent(jScrollPane2);
 
         jPanel4.add(jSplitPane1, java.awt.BorderLayout.CENTER);
 
@@ -347,10 +378,9 @@ public class AdaptadorIUGrafica extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new AdaptadorIUGrafica().setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            AdaptadorIUGrafica adaptadorIUGrafica = new AdaptadorIUGrafica();
+            adaptadorIUGrafica.inicia();
         });
     }
 
@@ -380,6 +410,8 @@ public class AdaptadorIUGrafica extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JSplitPane jSplitPane1;
+    private javax.swing.JTextArea jTAMembersDestino;
+    private javax.swing.JTextArea jTAMembersOrigen;
     private javax.swing.JTextField jTFAmbienteDestino;
     private javax.swing.JTextField jTFAmbienteOrigen;
     private javax.swing.JTextField jTFBibliotecaDestino;
@@ -387,9 +419,160 @@ public class AdaptadorIUGrafica extends javax.swing.JFrame {
     private javax.swing.JTextField jTFTipo;
     private javax.swing.JTable jTable1;
     private javax.swing.JTextArea jTextArea1;
-    private javax.swing.JTextArea jTextArea2;
-    private javax.swing.JTextArea jTextArea3;
     private javax.swing.JTextField jTextField3;
     private javax.swing.JToolBar jToolBar1;
     // End of variables declaration//GEN-END:variables
+
+    @Autowired
+    AdaptaMembersControlador adaptaMembersControlador;
+
+    public void inicia() {        
+        setLocationRelativeTo(null);
+        setVisible(true);
+
+        adaptaMembersControlador.setVista(this);
+
+        System.out.println("thisthis = " + adaptaMembersControlador);
+        SwingKeys.add(jPanel1, JComponent.WHEN_IN_FOCUSED_WINDOW, "control ENTER", () -> {
+            inserta();
+        });
+
+        SwingKeys.add(jPanel1, JComponent.WHEN_IN_FOCUSED_WINDOW, "control P", () -> {
+            procesa();
+        });
+
+        jTable1.addFocusListener(new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                System.out.println("antes " + jScrollPane1.getBorder());
+                jScrollPane1.setBorder(new LineBorder(Color.blue, 1));
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                jScrollPane1.setBorder(null);
+            }
+        });
+
+        MyListener myListener = new MyListener();
+
+        jTAMembersOrigen.addKeyListener(myListener);
+        jTAMembersDestino.addKeyListener(myListener);
+        jTextArea1.addKeyListener(myListener);
+
+        tabla = new MyJTable(jTable1, PeticionTransferencia.class);
+
+        jScrollPane1.setViewportView(jTable1);
+
+        jSplitPane1.setLeftComponent(jScrollPane1);
+
+        jTable1.addKeyListener(myListener);
+        jTable1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+    }
+
+    private void inserta() {
+
+        String[] lineasOrigen = jTAMembersOrigen.getText().split("\\n");
+        String[] lineasDestino = jTAMembersDestino.getText().split("\\n");
+        for (int i = 0; i < lineasOrigen.length; i++) {
+            String lineaOrigen = lineasOrigen[i];
+            String lineaDestino = lineasDestino[i];
+            if (lineaOrigen.isEmpty()) {
+                continue;
+            }
+            PeticionTransferencia pt = new PeticionTransferencia();
+            pt.setTipo(jTFTipo.getText().trim());        
+            pt.setAmbienteOrigen(jTFAmbienteOrigen.getText().trim());
+            pt.setMemberOrigen(jTFBibliotecaOrigen.getText().trim() + "(" + lineaOrigen + ")");
+            pt.setAmbienteDestino(jTFAmbienteDestino.getText().trim());
+            pt.setMemberDestino(jTFBibliotecaDestino.getText().trim() + "(" + lineaDestino + ")");
+            tabla.add(pt);
+        }
+    }
+
+    private void procesa() {
+        List<Transferencia> transferencias = new ArrayList<>();
+
+        MyList<PeticionTransferencia> myList = tabla.getMyList();
+        myList.forEach((peticionTransferencia) -> {
+            transferencias.add(creaTransferencia(peticionTransferencia));
+        });
+        
+        System.out.println("a punto");
+        adaptaMembersControlador.resuelve(transferencias);
+        System.out.println("terminó");
+
+    }
+
+    private static Transferencia creaTransferencia(PeticionTransferencia peticionTransferencia) {
+        String servidor = peticionTransferencia.getAmbienteOrigen();
+        String dsn = peticionTransferencia.getMemberOrigen();
+        Member peticionOrigen = creaMember(servidor, dsn);
+
+        servidor = peticionTransferencia.getAmbienteDestino();
+        dsn = peticionTransferencia.getMemberDestino();
+        Member peticionDestino = creaMember(servidor, dsn);
+
+        Transferencia transferencia = new Transferencia();
+        transferencia.setOrigen(peticionOrigen);
+        transferencia.setDestino(peticionDestino);
+        transferencia.setTipo(peticionTransferencia.getTipo());
+        return transferencia;
+    }
+
+    private static Member creaMember(String servidor, String dsn) {
+        Member member = new Member();
+        String biblioteca = StringUtils.substringBefore(dsn, "(");
+        String nombre = StringUtils.substringBetween(dsn, "(", ")");
+        member.setServidor(servidor);
+        member.setBiblioteca(biblioteca);
+        member.setNombre(nombre);
+        return member;
+    }
+
+    @Override
+    public void muestra(AdaptaMembersModeloVista modeloVista) {
+        Map<String, List<String>> bitacora = modeloVista.getBitacora();
+       bitacora.forEach((t, u) -> {
+           System.out.println("muestra bitácora " + t + " v " + u);
+       });
+        
+    }
+
+    @Override
+    public void muestra(ComparaMembersModeloVista modeloVista) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public static void lookAndfeel() {
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(AdaptadorIUGrafica.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+    }
+
+    private class MyListener extends KeyAdapter {
+
+        public void keyPressed(KeyEvent e) {
+            if (e.getKeyCode() == KeyEvent.VK_TAB) {
+                e.consume();
+                KeyboardFocusManager.
+                        getCurrentKeyboardFocusManager().focusNextComponent();
+            }
+
+            if (e.getKeyCode() == KeyEvent.VK_TAB
+                    && e.isShiftDown()) {
+                e.consume();
+                KeyboardFocusManager.
+                        getCurrentKeyboardFocusManager().focusPreviousComponent();
+            }
+        }
+    }
 }

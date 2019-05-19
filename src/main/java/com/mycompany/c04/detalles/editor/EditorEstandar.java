@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.mycompany.c04.detalles.editores;
+package com.mycompany.c04.detalles.editor;
 
 import com.mycompany.c02.casosdeuso.Editor;
 import java.util.ArrayList;

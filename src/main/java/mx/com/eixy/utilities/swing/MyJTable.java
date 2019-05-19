@@ -17,143 +17,149 @@ import mx.com.eixy.util.MyList;
 
 public class MyJTable<T> {
 
-	private JTable jTable;
+    private JTable jTable;
 
-	private MyList<T> myList;
-	private MyTableModel<T> myTableModel;
+    private MyList<T> myList;
+    private MyTableModel<T> myTableModel;
 
-	public MyJTable(JTable jTable, Class<T> clas) {
+    public MyJTable(JTable jTable, Class<T> clas) {
 
-		this.jTable = jTable;
+        this.jTable = jTable;
 
-		myList = new MyList<>();
-		myTableModel = new MyTableModel<>(myList, clas);
-		jTable.setModel(myTableModel);
-		jTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        myList = new MyList<>();
+        myTableModel = new MyTableModel<>(myList, clas);
+        jTable.setModel(myTableModel);
+        jTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
-		SwingKeys.add(jTable, JComponent.WHEN_FOCUSED, "control DELETE", this::deleteRows);
+        SwingKeys.add(jTable, JComponent.WHEN_FOCUSED, "control DELETE", this::deleteRows);
 
-		jTable.getModel().addTableModelListener(event -> fireStateChanged(event));
-		jTable.getSelectionModel().addListSelectionListener(event -> fireStateChanged(event));
+        jTable.getModel().addTableModelListener(event -> fireStateChanged(event));
+        jTable.getSelectionModel().addListSelectionListener(event -> fireStateChanged(event));
 
-	}
+    }
 
-	private void fireStateChanged(TableModelEvent event) {
-		event.getFirstRow();
+    private void fireStateChanged(TableModelEvent event) {
+        event.getFirstRow();
 
-	}
+    }
 
-	private void fireStateChanged(ListSelectionEvent event) {
+    private void fireStateChanged(ListSelectionEvent event) {
 
-	}
+    }
 
-	private Object modelChanged() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    private Object modelChanged() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	private final EventListenerList listenerList = new EventListenerList();
+    private final EventListenerList listenerList = new EventListenerList();
 
-	public void addChangeListener(ChangeListener l) {
-		listenerList.add(ChangeListener.class, l);
-	}
+    public void addChangeListener(ChangeListener l) {
+        listenerList.add(ChangeListener.class, l);
+    }
 
-	public void removeChangeListener(ChangeListener l) {
-		listenerList.remove(ChangeListener.class, l);
-	}
+    public void removeChangeListener(ChangeListener l) {
+        listenerList.remove(ChangeListener.class, l);
+    }
 
-	// Notify all listeners that have registered interest for
-	// notification on this event type. The event instance
-	// is lazily created using the parameters passed into
-	// the fire method.
-	protected void fireStateChanged() {
-		// Guaranteed to return a non-null array
-		Object[] listeners = listenerList.getListenerList();
-		int indice = jTable.getSelectedRow();
-		if (indice < 0) {
-			return;
-		}
-		// Process the listeners last to first, notifying
-		// those that are interested in this event
-		for (int i = listeners.length - 2; i >= 0; i -= 2) {
-			if (listeners[i] == ChangeListener.class) {
-				// Lazily create the event:
+    // Notify all listeners that have registered interest for
+    // notification on this event type. The event instance
+    // is lazily created using the parameters passed into
+    // the fire method.
+    protected void fireStateChanged() {
+        // Guaranteed to return a non-null array
+        Object[] listeners = listenerList.getListenerList();
+        int indice = jTable.getSelectedRow();
+        if (indice < 0) {
+            return;
+        }
+        // Process the listeners last to first, notifying
+        // those that are interested in this event
+        for (int i = listeners.length - 2; i >= 0; i -= 2) {
+            if (listeners[i] == ChangeListener.class) {
+                // Lazily create the event:
 
-				T bean = myList.get(indice);
-				ChangeEvent changeEvent = new ChangeEvent(bean);
-				((ChangeListener) listeners[i + 1]).stateChanged(changeEvent);
+                T bean = myList.get(indice);
+                ChangeEvent changeEvent = new ChangeEvent(bean);
+                ((ChangeListener) listeners[i + 1]).stateChanged(changeEvent);
 
-			}
-		}
-	}
+            }
+        }
+    }
 
-	public void add(T t) {
+    public void add(T t) {
 
-		myList.add(t);
+        myList.add(t);
 
-		int lastRow = myList.size() - 1;
+        int lastRow = myList.size() - 1;
 
-		EventQueue.invokeLater(() -> jTable.setRowSelectionInterval(lastRow, lastRow));
-	}
+        EventQueue.invokeLater(() -> jTable.setRowSelectionInterval(lastRow, lastRow));
+    }
 
-	private void deleteRows() {
+    private void deleteRows() {
 
-		int[] indices = jTable.getSelectedRows();
+        int[] indices = jTable.getSelectedRows();
 
-		for (int i = indices.length - 1; i >= 0; i--) {
-			myList.remove(indices[i]);
-		}
+        if (indices.length <= 0) {
+            return;
+        }
 
-		int firstRow = indices[0];
-		if (firstRow > myList.size() - 1) {
-			firstRow = myList.size() - 1;
-		}
+        for (int i = indices.length - 1; i >= 0; i--) {
+            myList.remove(indices[i]);
+        }
 
-		jTable.setRowSelectionInterval(firstRow, firstRow);
+        int firstRow = indices[0];
+        if (firstRow > myList.size() - 1) {
+            firstRow = myList.size() - 1;
+        }
 
-		// EventQueue.invokeLater(() -> jTable.setRowSelectionInterval(i,i));
-	}
+        if (firstRow >= 0) {
+            jTable.setRowSelectionInterval(firstRow, firstRow);
+        }
 
-	public JTable getjTable() {
-		return jTable;
-	}
+        // EventQueue.invokeLater(() -> jTable.setRowSelectionInterval(i,i));
+    }
 
-	public void setjTable(JTable jTable) {
-		this.jTable = jTable;
-	}
+    public JTable getjTable() {
+        return jTable;
+    }
 
-	public MyList<T> getMyList() {
-		return myList;
-	}
+    public void setjTable(JTable jTable) {
+        this.jTable = jTable;
+    }
 
-	public void setMyList(MyList<T> myList) {
-		this.myList = myList;
-	}
+    public MyList<T> getMyList() {
+        return myList;
+    }
 
-	public MyTableModel<T> getMyTableModel() {
-		return myTableModel;
-	}
+    public void setMyList(MyList<T> myList) {
+        this.myList = myList;
+    }
 
-	public void setMyTableModel(MyTableModel<T> myTableModel) {
-		this.myTableModel = myTableModel;
-	}
+    public MyTableModel<T> getMyTableModel() {
+        return myTableModel;
+    }
 
-	public Stream<T> stream() {
-		return myList.stream();
-	}
+    public void setMyTableModel(MyTableModel<T> myTableModel) {
+        this.myTableModel = myTableModel;
+    }
 
-	public void grabFocus() {
-		jTable.grabFocus();
-		jTable.setRowSelectionInterval(0, 0);
+    public Stream<T> stream() {
+        return myList.stream();
+    }
 
-	}
+    public void grabFocus() {
+        jTable.grabFocus();
+        jTable.setRowSelectionInterval(0, 0);
 
-	public T getSelectedRow() {
-		int i = jTable.getSelectedRow();
-		if (i >= 0) {
-			return myList.get(i);
-		}
-		return null;
-	}
+    }
+
+    public T getSelectedRow() {
+        int i = jTable.getSelectedRow();
+        if (i >= 0) {
+            return myList.get(i);
+        }
+        return null;
+    }
 
 }

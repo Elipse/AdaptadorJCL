@@ -3,7 +3,6 @@ package mx.com.eixy.util;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
-import java.util.List;
 
 public class MyList<E> extends ArrayList<E> {
 

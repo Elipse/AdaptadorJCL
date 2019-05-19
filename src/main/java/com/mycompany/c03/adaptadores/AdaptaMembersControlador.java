@@ -18,7 +18,13 @@ public class AdaptaMembersControlador {
 
     private final AdaptaMembersCasoDeUso casoDeUso;
     private final AdaptaMembersPresentador presentador;
-    private final Vista vista;
+    private Vista vista;
+
+    public AdaptaMembersControlador(AdaptaMembersCasoDeUso casoDeUso,
+            AdaptaMembersPresentador presentador) {
+        this.casoDeUso = casoDeUso;
+        this.presentador = presentador;
+    }
 
     public AdaptaMembersControlador(AdaptaMembersCasoDeUso casoDeUso,
             AdaptaMembersPresentador presentador,
@@ -28,7 +34,14 @@ public class AdaptaMembersControlador {
         this.vista = vista;
     }
 
+    public void setVista(Vista vista) {
+        this.vista = vista;
+    }
+
     public void resuelve(List<Transferencia> transferencias) {
+        if (this.vista == null) {
+            throw new IllegalStateException("La vista no ha sido configurada.");
+        }
         AdaptaMembersModeloRespuesta modeloRespuesta = casoDeUso.promueveMembers(transferencias);
         AdaptaMembersModeloVista modeloVista = presentador.presenta(modeloRespuesta);
         vista.muestra(modeloVista);

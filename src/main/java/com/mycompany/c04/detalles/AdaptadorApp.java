@@ -5,6 +5,7 @@
  */
 package com.mycompany.c04.detalles;
 
+import java.awt.EventQueue;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 /**
@@ -15,8 +16,14 @@ public class AdaptadorApp {
 
     public static void main(String[] args) throws Exception {
 
+        /*
         new AnnotationConfigApplicationContext(AdaptadorConfig.class).
-                getBean(AdaptadorIUGraficaTest.class).inicia();
+        getBean(AdaptadorIUGraficaTest.class).inicia();
+         */
+        AdaptadorIUGrafica.lookAndfeel();
+        AdaptadorIUGrafica adaptadorIUGrafica = new AnnotationConfigApplicationContext(AdaptadorConfig.class).
+                getBean(AdaptadorIUGrafica.class);        
+        EventQueue.invokeLater(adaptadorIUGrafica::inicia);
     }
 
 }

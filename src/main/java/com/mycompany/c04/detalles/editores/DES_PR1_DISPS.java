@@ -5,6 +5,7 @@
  */
 package com.mycompany.c04.detalles.editores;
 
+import com.mycompany.c04.detalles.editor.EditorEstandar;
 import java.util.Iterator;
 import org.springframework.stereotype.Component;
 
@@ -13,9 +14,9 @@ import org.springframework.stereotype.Component;
  * @author ELIALVA
  */
 @Component
-public class INFOPRO_INFODES_CARD extends EditorEstandar {
+public class DES_PR1_DISPS extends EditorEstandar {
 
-   
+    
 
     @Override
     public Iterator<String> ajusta(Iterator<String> contenido) {

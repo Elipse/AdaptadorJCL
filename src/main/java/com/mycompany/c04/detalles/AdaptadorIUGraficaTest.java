@@ -98,19 +98,19 @@ public class AdaptadorIUGraficaTest extends javax.swing.JFrame implements Vista 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:        
         Member peticionOrigen = new Member();
-        peticionOrigen.setServidor("INFOPRO");
+        peticionOrigen.setServidor("DES");
         peticionOrigen.setBiblioteca("PNCQP.BTCH.PROCLIB");
         peticionOrigen.setNombre("QAD2700");
         
         Member peticionDestino = new Member();
-        peticionDestino.setServidor("INFODES");
+        peticionDestino.setServidor("PR1");
         peticionDestino.setBiblioteca("TN6EAM.BTCH.PROCLIB");
         peticionDestino.setNombre("QAD2700");
         
         Transferencia transferencia = new Transferencia();
         transferencia.setOrigen(peticionOrigen);
         transferencia.setDestino(peticionDestino);
-        transferencia.setTipo("PROC");
+        transferencia.setTipo("PROCS");
         
         adaptaMembersControlador.resuelve(Arrays.asList(transferencia));
         
@@ -121,19 +121,19 @@ public class AdaptadorIUGraficaTest extends javax.swing.JFrame implements Vista 
         // TODO add your handling code here:
         // TODO add your handling code here:        
         Member peticionOrigen = new Member();
-        peticionOrigen.setServidor("INFOPRO");
+        peticionOrigen.setServidor("DES");
         peticionOrigen.setBiblioteca("PNCQP.BTCH.PROCLIB");
         peticionOrigen.setNombre("QAD2700");
         
         Member peticionDestino = new Member();
-        peticionDestino.setServidor("INFODES");
+        peticionDestino.setServidor("PR1");
         peticionDestino.setBiblioteca("TN6EAM.BTCH.PROCLIB");
         peticionDestino.setNombre("QAD2700");
         
         Transferencia transferencia = new Transferencia();
         transferencia.setOrigen(peticionOrigen);
         transferencia.setDestino(peticionDestino);
-        transferencia.setTipo("PROC");
+        transferencia.setTipo("PROCS");
         
         comparaMembersControlador.compara(transferencia);
         

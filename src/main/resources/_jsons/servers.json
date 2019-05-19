@@ -1,0 +1,30 @@
+[
+	{
+		"serverName": "DES",
+		"ip": "150.23.1.12",
+		"port": "21",
+		"user": "TN6EAM",
+		"password": "chetos05"
+	},
+	{
+		"serverName": "PR1",
+		"ip": "150.23.1.37",
+		"port": "21",
+		"user": "TN6EAM",
+		"password": "chetos05"
+	},
+	{
+		"serverName": "PRE",
+		"ip": "150.23.1.37",
+		"port": "21",
+		"user": "TN6EAM",
+		"password": "chetos05"
+	},
+	{
+		"serverName": "PRO",
+		"ip": "150.23.1.37",
+		"port": "21",
+		"user": "TN6EAM",
+		"password": "chetos05"
+	}
+]
